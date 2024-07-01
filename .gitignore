@@ -1,0 +1,39 @@
+//make a gitignore file for node js server
+# Node.js
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Dependency directories
+/.pnp
+.pnp.js
+
+# Optional npm cache directory
+.npm
+
+# Environment variables
+.env
+
+# IDE files
+.vscode/
+.idea/
+
+# Build output
+/build
+
+# Logs
+logs/
+*.log
+
+# Testing
+/coverage
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+
+
+
+
+

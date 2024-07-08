@@ -2,6 +2,7 @@ import express from "express";
 import { createServer } from "http";
 import { Server } from "socket.io";
 import { config } from "dotenv";
+import { Redis } from "ioredis";
 import { calculatePercentage, getInventories } from "./helper.js";
 import { connectDB } from "./helper.js";
 import { Product } from "./models/product.js";
@@ -19,6 +20,15 @@ const io = new Server(server, {
         origin: "*",
         methods: ["GET"],
     },
+});
+const sub = new Redis({
+    host: process.env.REDIS_HOST,
+    port: process.env.REDIS_PORT,
+    password: process.env.REDIS_PASSWORD,
+});
+sub.on("connect", () => {
+    sub.subscribe("admin-stats-sub");
+    console.log("Redis connected");
 });
 const getDashboardStats = async () => {
     let stats = {};
@@ -147,14 +157,21 @@ const getDashboardStats = async () => {
     };
     return { success: true, stats };
 };
+sub.on("message", async (channel, message) => {
+    if (channel === "admin-stats-sub") {
+        const stats = await getDashboardStats();
+        console.log("pubsub implemented*************************************************************");
+        io.emit("stats", stats);
+    }
+});
 io.on("connection", (socket) => {
-    console.log(`${socket.client} connected`);
+    console.log(`${socket.id} connected`);
     // Emit some data when the client connects
     socket.emit("message", "Welcome to the WebSocket server!");
     socket.on("getStats", async () => {
         const stats = await getDashboardStats();
         console.log(stats);
-        socket.emit("stats", stats);
+        io.emit("stats", stats);
     });
     socket.on("disconnect", () => {
         console.log("A user disconnected");

@@ -20,6 +20,7 @@ yarn-error.log
 
 # Build output
 /build
+/dist
 
 # Logs
 logs/
